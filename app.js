@@ -182,6 +182,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
           error = err.response.body.error_code;
         }
         if (!error) {
+          db.users.update({ username }, { $set: { ban: 'perm' } });
           await bot.sendMessage(chatId, `@${username} был забанен навсегда `);
         } else {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
@@ -196,6 +197,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
         error = err.response.body.error_code;
       }
       if (!error) {
+        db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: 'perm' } });
         await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен навсегда `);
       } else {
         await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
@@ -222,7 +224,9 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
         }
         if (!error) {
           const unbanTimeDoc = await db.users.findOne({ username });
-          banArr[unbanTimeDoc.ban].cancel();
+          if (unbanTimeDoc.ban !== 'perm') {
+            banArr[unbanTimeDoc.ban].cancel();
+          }
           await db.users.update({ username }, { $set: { ban: false } });
           await bot.sendMessage(chatId, `@${username} разбанен `);
         } else {
@@ -239,7 +243,9 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
       }
       if (!error) {
         const unbanTimeDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
-        banArr[unbanTimeDoc.ban].cancel();
+        if (unbanTimeDoc.ban !== 'perm') {
+          banArr[unbanTimeDoc.ban].cancel();
+        }
         await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: false } });
         await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} разбанен `);
       } else {
