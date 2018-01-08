@@ -265,8 +265,8 @@ bot.onText(/\/del/, async (msg) => {
   const chatId = msg.chat.id;
   const senderDoc = await db.users.findOne({ _id: userId });
   if (senderDoc && senderDoc.admin) {
-    bot.deleteMessage(chatId, msg.id);
-    bot.deleteMessage(chatId, msg.reply_to_message.id);
+    bot.deleteMessage(chatId, msg.message_id);
+    bot.deleteMessage(chatId, msg.reply_to_message.message_id);
   }
 });
 
