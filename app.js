@@ -86,7 +86,7 @@ bot.onText(/\/promote(.*)/, async (msg, match) => {
   }
 });
 
-bot.onText(/\/deomote(.*)/, async (msg, match) => {
+bot.onText(/\/demote(.*)/, async (msg, match) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
   const senderDoc = await db.users.findOne({ _id: userId });
