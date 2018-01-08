@@ -64,6 +64,50 @@ bot.onText(/\/kick(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/promote(.*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    const atPos = match[0].search('@');
+    if (atPos !== -1) {
+      const username = match[0].slice(atPos + 1);
+      const promoteDoc = await db.users.findOne({ username });
+      if (promoteDoc) {
+        await db.users.update({ username }, { $set: { admin: true } });
+        await bot.sendMessage(chatId, `@${username} теперь админ `);
+      } else {
+        await bot.sendMessage(chatId, 'Пользователь не писал ничего в этот чат, не могу дать админку.');
+      }
+    } else if (msg.reply_to_message) {
+      await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { admin: true } });
+      await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} теперь админ `);
+    }
+  }
+});
+
+bot.onText(/\/deomote(.*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    const atPos = match[0].search('@');
+    if (atPos !== -1) {
+      const username = match[0].slice(atPos + 1);
+      const demoteDoc = await db.users.findOne({ username });
+      if (demoteDoc) {
+        await db.users.update({ username }, { $set: { admin: false } });
+        await bot.sendMessage(chatId, `@${username} больше не админ `);
+      } else {
+        await bot.sendMessage(chatId, 'Пользователь не писал ничего в этот чат, не могу дать админку.');
+      }
+    } else if (msg.reply_to_message) {
+      await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { admin: false } });
+      await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} больше не админ `);
+    }
+  }
+});
+
 bot.onText(/\/ban(.*)/, async (msg, match) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
@@ -205,7 +249,7 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
   }
 });
 
-bot.onText(/\/promoteMe/, async (msg) => {
+/* bot.onText(/\/promoteMe/, async (msg) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
   const senderDoc = await db.users.findOne({ _id: userId });
@@ -221,7 +265,7 @@ bot.onText(/\/promoteMe/, async (msg) => {
     });
   }
   await bot.sendMessage(chatId, 'Теперь ты админ!');
-});
+}); */
 
 bot.onText(/\/welcome ([^]*)/, async (msg, match) => {
   const userId = msg.from.id;
