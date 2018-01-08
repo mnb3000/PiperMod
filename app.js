@@ -260,6 +260,16 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/del/, async (msg) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    bot.deleteMessage(chatId, msg.id);
+    bot.deleteMessage(chatId, msg.reply_to_message.id);
+  }
+});
+
 /* bot.onText(/\/promoteMe/, async (msg) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
