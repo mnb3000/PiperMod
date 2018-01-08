@@ -306,6 +306,13 @@ bot.onText(/\/welcome ([^]*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/ping/, async (msg) => {
+  const senderDoc = await db.users.findOne({ _id: msg.from.id });
+  if (senderDoc && senderDoc.admin) {
+    bot.sendMessage(msg.chat.id, 'Pong!');
+  }
+});
+
 bot.on('message', async (msg) => {
   const userId = msg.from.id;
   const senderDoc = await db.users.findOne({ _id: userId });
