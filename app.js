@@ -216,7 +216,7 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
     if (atPos !== -1) {
       const username = match[0].slice(atPos + 1);
       const unbanDoc = await db.users.findOne({ username });
-      if (unbanDoc) {
+      if (unbanDoc && unbanDoc.ban) {
         try {
           await bot.unbanChatMember(chatId, unbanDoc._id);
         } catch (err) {
@@ -233,23 +233,28 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗБАНИТЬ админа. (вы чо, тупые?)');
         }
       } else {
-        await bot.sendMessage(chatId, 'Пользователь не писал ничего в этот чат, не могу разбанить.');
+        await bot.sendMessage(chatId, 'Пользователь не забанен');
       }
     } else if (msg.reply_to_message) {
-      try {
-        await bot.unbanChatMember(chatId, msg.reply_to_message.from.id);
-      } catch (err) {
-        error = err.response.body.error_code;
-      }
-      if (!error) {
-        const unbanTimeDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
-        if (unbanTimeDoc.ban !== 'perm') {
-          banArr[unbanTimeDoc.ban].cancel();
+      const replyUnbanDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
+      if (replyUnbanDoc && replyUnbanDoc.ban) {
+        try {
+          await bot.unbanChatMember(chatId, msg.reply_to_message.from.id);
+        } catch (err) {
+          error = err.response.body.error_code;
         }
-        await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: false } });
-        await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} разбанен `);
+        if (!error) {
+          const unbanTimeDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
+          if (unbanTimeDoc.ban !== 'perm') {
+            banArr[unbanTimeDoc.ban].cancel();
+          }
+          await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: false } });
+          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} разбанен `);
+        } else {
+          await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗБАНИТЬ админа. (вы чо, тупые?)');
+        }
       } else {
-        await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗБАНИТЬ админа. (вы чо, тупые?)');
+        await bot.sendMessage(chatId, 'Пользователь не забанен');
       }
     }
   }
