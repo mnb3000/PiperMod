@@ -334,6 +334,57 @@ bot.onText(/\/mute(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/unmute(.*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  let error = 0;
+  if (senderDoc && senderDoc.admin) {
+    const atPos = match[0].search('@');
+    if (atPos !== -1) {
+      const username = match[0].slice(atPos + 1);
+      const unmuteDoc = await db.users.findOne({ username });
+      if (unmuteDoc) {
+        try {
+          await bot.restrictChatMember(chatId, unmuteDoc._id, {
+            until_date: Math.round((Date.now() / 1000) + 5),
+            can_send_messages: true,
+            can_send_media_messages: true,
+            can_send_other_messages: true,
+            can_add_web_page_previews: true,
+          });
+        } catch (err) {
+          error = err.response.body.error_code;
+        }
+        if (!error) {
+          await bot.sendMessage(chatId, `@${username} может говорить `);
+        } else {
+          await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗМУТИТЬ админа. (вы чо, тупые?)');
+        }
+      } else {
+        await bot.sendMessage(chatId, 'Пользователь ничего не писал в чат');
+      }
+    } else if (msg.reply_to_message) {
+      try {
+        await bot.restrictChatMember(chatId, msg.reply_to_message.from.id, {
+          until_date: Math.round((Date.now() / 1000) + 5),
+          can_send_messages: true,
+          can_send_media_messages: true,
+          can_send_other_messages: true,
+          can_add_web_page_previews: true,
+        });
+      } catch (err) {
+        error = err.response.body.error_code;
+      }
+      if (!error) {
+        await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} может говорить `);
+      } else {
+        await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗМУТИТЬ админа. (вы чо, тупые?)');
+      }
+    }
+  }
+});
+
 /* bot.onText(/\/promoteMe/, async (msg) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
