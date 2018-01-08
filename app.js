@@ -265,8 +265,72 @@ bot.onText(/\/del/, async (msg) => {
   const chatId = msg.chat.id;
   const senderDoc = await db.users.findOne({ _id: userId });
   if (senderDoc && senderDoc.admin && msg.reply_to_message) {
-    bot.deleteMessage(chatId, msg.message_id);
-    bot.deleteMessage(chatId, msg.reply_to_message.message_id);
+    await bot.deleteMessage(chatId, msg.message_id);
+    await bot.deleteMessage(chatId, msg.reply_to_message.message_id);
+  }
+});
+
+bot.onText(/\/mute(.*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  let error = 0;
+  if (senderDoc && senderDoc.admin) {
+    const atPos = match[0].search('@');
+    const timeMatch = match[0].match(/\/mute(?: )?(?:@.[^ ]*)?(?: )?(\d+h)?(?: )?(\d+m)?/);
+    if (timeMatch[1] || timeMatch[2]) {
+      let muteHour = 0;
+      let muteMinute = 0;
+      if (timeMatch[1]) {
+        muteHour = parseInt(timeMatch[1].replace('h', ''), 10);
+      }
+      if (timeMatch[2]) {
+        muteMinute = parseInt(timeMatch[2].replace('m', ''), 10);
+      }
+      if (atPos !== -1) {
+        const username = match[0].match(/\/mute(?: )?(?:@)(.[^ ]*)/)[1];
+        const muteDoc = await db.users.findOne({ username });
+        if (muteDoc) {
+          try {
+            await bot.restrictChatMember(chatId, muteDoc._id, {
+              until_date: Math.round((Date.now() + (muteHour * 3600000) +
+                (muteMinute * 60000)) / 1000),
+              can_send_messages: false,
+              can_send_media_messages: false,
+              can_send_other_messages: false,
+              can_add_web_page_previews: false,
+            });
+          } catch (err) {
+            error = err.response.body.error_code;
+          }
+          if (!error) {
+            await bot.sendMessage(chatId, `@${username} был заткнут на ${muteHour} ${declOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
+          } else {
+            await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь заткнуть админа.');
+          }
+        } else {
+          await bot.sendMessage(chatId, 'Пользователь не писал ничего в этот чат, не могу заткнуть.');
+        }
+      } else if (msg.reply_to_message) {
+        try {
+          await bot.restrictChatMember(chatId, msg.reply_to_message.from.id, {
+            until_date: Math.round((Date.now() + (muteHour * 3600000) +
+              (muteMinute * 60000)) / 1000),
+            can_send_messages: false,
+            can_send_media_messages: false,
+            can_send_other_messages: false,
+            can_add_web_page_previews: false,
+          });
+        } catch (err) {
+          error = err.response.body.error_code;
+        }
+        if (!error) {
+          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был заткнут на ${muteHour} ${declOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
+        } else {
+          await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь заткнуть админа.');
+        }
+      }
+    }
   }
 });
 
