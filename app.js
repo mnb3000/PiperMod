@@ -493,5 +493,12 @@ bot.on('message', async (msg) => {
 bot.on('new_chat_members', async (msg) => {
   const chatId = msg.chat.id;
   const welcome = await db.data.findOne({ name: 'welcome' });
-  await bot.sendMessage(chatId, welcome.text);
+  await bot.sendMessage(chatId, welcome.text, {
+    reply_markup: {
+      inline_keyboard: [[{
+        text: 'Прочти правила!',
+        url: 'https://t.me/PiedModerBot?start=rules',
+      }]],
+    },
+  });
 });
