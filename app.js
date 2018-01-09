@@ -421,10 +421,58 @@ bot.onText(/\/welcome ([^]*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/rules ([^]*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    const firstRulesDoc = await db.data.findOne({ name: 'rules' });
+    if (firstRulesDoc) {
+      await db.data.update({ name: 'rules' }, { $set: { text: match[1] } });
+    } else {
+      await db.data.insert({
+        name: 'rules',
+        text: match[1],
+      });
+    }
+    await bot.sendMessage(chatId, 'Правила обновлены!');
+  }
+});
+
+bot.onText(/\/startLs ([^]*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    const firstStartLsDoc = await db.data.findOne({ name: 'startLs' });
+    if (firstStartLsDoc) {
+      await db.data.update({ name: 'startLs' }, { $set: { text: match[1] } });
+    } else {
+      await db.data.insert({
+        name: 'startLs',
+        text: match[1],
+      });
+    }
+    await bot.sendMessage(chatId, 'Старт в личке обновлен!');
+  }
+});
+
 bot.onText(/\/ping/, async (msg) => {
   const senderDoc = await db.users.findOne({ _id: msg.from.id });
   if (senderDoc && senderDoc.admin) {
     bot.sendMessage(msg.chat.id, 'Pong!');
+  }
+});
+
+bot.onText(/\/start(.*)/, async (msg, match) => {
+  if (match[1] === ' rules') {
+    const chatId = msg.chat.id;
+    const rules = await db.data.findOne({ name: 'rules' });
+    await bot.sendMessage(chatId, rules.text);
+  } else if (msg.chat.id === msg.from.id) {
+    const chatId = msg.chat.id;
+    const rules = await db.data.findOne({ name: 'startLs' });
+    await bot.sendMessage(chatId, rules.text);
   }
 });
 
