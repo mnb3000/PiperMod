@@ -14,7 +14,7 @@ const db = {
   }),
 };
 
-const token = '531554554:AAEm4Xd_weYCZrHiizE1UnpkXx2Qna5lyWQ';
+const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 const banArr = [];
 let banCounter = 0;
