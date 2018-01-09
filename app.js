@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle,no-console,no-eval,no-await-in-loop */
+/* eslint-disable no-underscore-dangle,no-console,no-eval,no-await-in-loop,no-loop-func */
 const Datastore = require('nedb-promise').datastore;
 const TelegramBot = require('tgfancy');
 const scheduler = require('node-schedule');
@@ -17,13 +17,41 @@ const db = {
 const token = '531554554:AAEm4Xd_weYCZrHiizE1UnpkXx2Qna5lyWQ';
 const bot = new TelegramBot(token, { polling: true });
 const banArr = [];
-let i = 0;
+let banCounter = 0;
+
+async function init() {
+  const timedBanned = await db.users.find({
+    banDate: {
+      $ne: false,
+    },
+  });
+  for (let i = 0; i < timedBanned.length; i += 1) {
+    db.users.update(
+      { username: timedBanned[i].username },
+      { $set: { ban: banCounter, banDate: timedBanned[i].banDate } },
+    );
+    banArr[banCounter] = scheduler.scheduleJob(timedBanned[i].banDate, async () => {
+      await bot.unbanChatMember(timedBanned[i].banChat, timedBanned[i]._id);
+      await bot.sendMessage(timedBanned[i].banChat, `Бан для @${timedBanned[i].username} прошел`);
+      await db.users.update(
+        { username: timedBanned[i].username },
+        { $set: { ban: false, banDate: false } },
+      );
+      console.log(`Scheduled unban for ${timedBanned[i].username}`);
+    });
+  }
+}
 
 function declOfNum(number, titles) {
   const cases = [2, 0, 1, 1, 1, 2];
   return titles[(number % 100 > 4 && number % 100 < 20) ? 2 :
     cases[(number % 10 < 5) ? number % 10 : 5]];
 }
+
+init()
+  .catch((err) => {
+    console.log(err);
+  });
 
 bot.onText(/\/kick(.*)/, async (msg, match) => {
   const userId = msg.from.id;
@@ -128,48 +156,65 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
       if (atPos !== -1) {
         const username = match[0].match(/\/ban(?: )?(?:@)(.[^ ]*)/)[1];
         const banDoc = await db.users.findOne({ username });
-        if (banDoc) {
+        if (banDoc && !banDoc.ban) {
           try {
             await bot.kickChatMember(chatId, banDoc._id);
           } catch (err) {
             error = err.response.body.error_code;
           }
           if (!error) {
-            db.users.update({ username }, { $set: { ban: i } });
-            banArr[i] = scheduler.scheduleJob(new Date(Date.now() + (banHour * 3600000) +
-              (banMinute * 60000)), async () => {
+            const banDate = new Date(Date.now() + (banHour * 3600000) + (banMinute * 60000));
+            db.users.update({ username }, { $set: { ban: banCounter, banDate, banChat: chatId } });
+            banArr[banCounter] = scheduler.scheduleJob(banDate, async () => {
               await bot.unbanChatMember(chatId, banDoc._id);
               await bot.sendMessage(chatId, `Бан для @${username} прошел`);
-              await db.users.update({ username }, { $set: { ban: false } });
+              await db.users.update(
+                { username },
+                { $set: { ban: false, banDate: false, banChat: false } },
+              );
             });
-            console.log(banArr[i].nextInvocation());
-            i += 1;
+            console.log(banArr[banCounter].nextInvocation());
+            banCounter += 1;
             await bot.sendMessage(chatId, `@${username} был забанен на ${banHour} ${declOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
           } else {
             await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
           }
         } else {
-          await bot.sendMessage(chatId, 'Пользователь не писал ничего в этот чат, не могу забанить.');
+          await bot.sendMessage(chatId, 'Пользователь уже забанен');
         }
       } else if (msg.reply_to_message) {
-        try {
-          await bot.kickChatMember(chatId, msg.reply_to_message.from.id);
-        } catch (err) {
-          error = err.response.body.error_code;
-        }
-        if (!error) {
-          db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: i } });
-          banArr[i] = scheduler.scheduleJob(new Date(Date.now() + (banHour * 3600000) +
-            (banMinute * 60000)), async () => {
-            await bot.unbanChatMember(chatId, msg.reply_to_message.from.id);
-            await bot.sendMessage(chatId, `Бан для @${msg.reply_to_message.from.username} прошел`);
-            await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: false } });
-          });
-          console.log(banArr[i].nextInvocation());
-          i += 1;
-          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен на ${banHour} ${declOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
+        const banDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
+        if (banDoc && !banDoc.ban) {
+          try {
+            await bot.kickChatMember(chatId, msg.reply_to_message.from.id);
+          } catch (err) {
+            error = err.response.body.error_code;
+          }
+          if (!error) {
+            const banDate = new Date(Date.now() + (banHour * 3600000) + (banMinute * 60000));
+            db.users.update(
+              { _id: msg.reply_to_message.from.id },
+              { $set: { ban: banCounter, banDate, banChat: chatId } },
+            );
+            banArr[banCounter] = scheduler.scheduleJob(banDate, async () => {
+              await bot.unbanChatMember(chatId, msg.reply_to_message.from.id);
+              await bot.sendMessage(chatId, `Бан для @${msg.reply_to_message.from.username} прошел`);
+              await db.users.update({ _id: msg.reply_to_message.from.id }, {
+                $set: {
+                  ban: false,
+                  banDate: false,
+                  banChat: false,
+                },
+              });
+            });
+            console.log(banArr[banCounter].nextInvocation());
+            banCounter += 1;
+            await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен на ${banHour} ${declOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
+          } else {
+            await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
+          }
         } else {
-          await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
+          await bot.sendMessage(chatId, 'Пользователь уже забанен');
         }
       }
     } else if (atPos !== -1) {
@@ -182,7 +227,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
           error = err.response.body.error_code;
         }
         if (!error) {
-          db.users.update({ username }, { $set: { ban: 'perm' } });
+          db.users.update({ username }, { $set: { ban: 'perm', banDate: false, banChat: chatId } });
           await bot.sendMessage(chatId, `@${username} был забанен навсегда `);
         } else {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
@@ -197,7 +242,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
         error = err.response.body.error_code;
       }
       if (!error) {
-        db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: 'perm' } });
+        db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: 'perm', banDate: false, banChat: chatId } });
         await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен навсегда `);
       } else {
         await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
@@ -227,7 +272,10 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
           if (unbanTimeDoc.ban !== 'perm') {
             banArr[unbanTimeDoc.ban].cancel();
           }
-          await db.users.update({ username }, { $set: { ban: false } });
+          await db.users.update(
+            { username },
+            { $set: { ban: false, banDate: false, banChat: false } },
+          );
           await bot.sendMessage(chatId, `@${username} разбанен `);
         } else {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗБАНИТЬ админа. (вы чо, тупые?)');
@@ -248,7 +296,13 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
           if (unbanTimeDoc.ban !== 'perm') {
             banArr[unbanTimeDoc.ban].cancel();
           }
-          await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { ban: false } });
+          await db.users.update({ _id: msg.reply_to_message.from.id }, {
+            $set: {
+              ban: false,
+              banDate: false,
+              banChat: false,
+            },
+          });
           await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} разбанен `);
         } else {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь РАЗБАНИТЬ админа. (вы чо, тупые?)');
@@ -485,6 +539,8 @@ bot.on('message', async (msg) => {
       username: msg.from.username,
       first_name: msg.from.first_name,
       ban: false,
+      banDate: false,
+      banChat: false,
       admin: false,
     });
   }
