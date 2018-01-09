@@ -39,6 +39,7 @@ async function init() {
       );
       console.log(`Scheduled unban for ${timedBanned[i].username}`);
     });
+    banCounter += 1;
   }
 }
 
