@@ -454,7 +454,7 @@ bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
 
 bot.onText(/#идеядляПП ([^]*)/i, async (msg, match) => {
   const chatId = msg.chat.id;
-  await bot.sendMessage('PPModTestChat', `Идея для бота от @${msg.from.username}:
+  await bot.sendMessage(-1001165254294, `Идея для бота от @${msg.from.username}:
   ${match[1]}`);
   await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
 });
