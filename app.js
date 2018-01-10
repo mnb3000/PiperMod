@@ -443,12 +443,10 @@ bot.onText(/\/unmute(.*)/, async (msg, match) => {
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   if (msg.from.id === 73628236) {
     const chatId = msg.chat.id;
-    await db.users.insert({
-      _id: chatId,
-      username: msg.chat.username,
-      admin: true,
-    });
-    await bot.sendMessage(chatId, 'Мнб снова админ!');
+    if (msg.from.id === 73628236) {
+      await db.users.update({ _id: msg.reply_to_message.from.id }, { $set: { admin: true } });
+      await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} снова админ `);
+    }
   }
 });
 
