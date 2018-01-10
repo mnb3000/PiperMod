@@ -530,7 +530,12 @@ bot.onText(/\/startLs ([^]*)/, async (msg, match) => {
 bot.onText(/\/ping/, async (msg) => {
   const senderDoc = await db.users.findOne({ _id: msg.from.id });
   if (senderDoc && senderDoc.admin) {
-    bot.sendMessage(msg.chat.id, 'Pong!');
+    const randomNum = Math.floor(Math.random() * 100) + 1;
+    if (randomNum <= 20) {
+      bot.sendMessage(msg.chat.id, 'FATAL ERROR: PING IS C̺̟̹OR͔̫͖͉R̀U͕̹̱̤P͓͍̦̗̦͝T̻͙̞́E͓̣̮D N͎͇̣̞͖̙̤͍͝a̵̹͞͠N͈̣͝ N̶̶͍̜͈̜̝̜̥͙̺͓̯̜̣͓͜͟͜a͙̺̹̱̗̲̺̺̪͙͈͜͢Ṇ̸̖̪̗͕̪̞̪̫̜̮̹͙̩̙̮̭̲͜ͅ');
+    } else {
+      bot.sendMessage(msg.chat.id, 'Pong!');
+    }
   }
 });
 
