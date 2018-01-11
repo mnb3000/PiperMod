@@ -451,7 +451,7 @@ bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
 bot.onText(/#идеядляПП ([^]*)/i, async (msg, match) => {
   const chatId = msg.chat.id;
   await bot.sendMessage(-1001165254294, `Идея для бота от @${msg.from.username}:
-  ${match[1].slice(1)}`);
+${match[1]}`);
   await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
 });
 
@@ -532,9 +532,9 @@ bot.onText(/\/ping/, async (msg) => {
   if (senderDoc && senderDoc.admin) {
     const randomNum = Math.floor(Math.random() * 100) + 1;
     if (randomNum <= 20) {
-      bot.sendMessage(msg.chat.id, 'FATAL ERROR: PING IS C̺̟̹OR͔̫͖͉R̀U͕̹̱̤P͓͍̦̗̦͝T̻͙̞́E͓̣̮D N͎͇̣̞͖̙̤͍͝a̵̹͞͠N͈̣͝ N̶̶͍̜͈̜̝̜̥͙̺͓̯̜̣͓͜͟͜a͙̺̹̱̗̲̺̺̪͙͈͜͢Ṇ̸̖̪̗͕̪̞̪̫̜̮̹͙̩̙̮̭̲͜ͅ');
+      await bot.sendMessage(msg.chat.id, 'FATAL ERROR: PING IS C̺̟̹OR͔̫͖͉R̀U͕̹̱̤P͓͍̦̗̦͝T̻͙̞́E͓̣̮D N͎͇̣̞͖̙̤͍͝a̵̹͞͠N͈̣͝ N̶̶͍̜͈̜̝̜̥͙̺͓̯̜̣͓͜͟͜a͙̺̹̱̗̲̺̺̪͙͈͜͢Ṇ̸̖̪̗͕̪̞̪̫̜̮̹͙̩̙̮̭̲͜ͅ');
     } else {
-      bot.sendMessage(msg.chat.id, 'Pong!');
+      await bot.sendMessage(msg.chat.id, 'Pong!');
     }
   }
 });
