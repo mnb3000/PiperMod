@@ -25,6 +25,13 @@ async function init() {
       $ne: false,
     },
   });
+  const ugolBanned = await db.users.find({ ugol: true });
+  ugolBanned.forEach(async (ugolDoc) => {
+    await db.users.update(
+      { _id: ugolDoc._id },
+      { $set: { ugol: false } },
+    );
+  });
   for (let i = 0; i < timedBanned.length; i += 1) {
     db.users.update(
       { username: timedBanned[i].username },
@@ -319,6 +326,65 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/ugol(.*)/, async (msg, match) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  const atPos = match[0].search('@');
+  const timeMatch = match[0].match(/\/ban(?: )?(?:@.[^ ]*)?(?: )?(\d+h)?(?: )?(\d+m)?/);
+  if (senderDoc && senderDoc.admin) {
+    if (timeMatch[1] || timeMatch[2]) {
+      let ugolHour = 0;
+      let ugolMinute = 0;
+      if (timeMatch[1]) {
+        ugolHour = parseInt(timeMatch[1].replace('h', ''), 10);
+      }
+      if (timeMatch[2]) {
+        ugolMinute = parseInt(timeMatch[2].replace('m', ''), 10);
+      }
+      if (atPos !== -1) {
+        const username = match[0].match(/\/ugol(?: )?(?:@)(.[^ ]*)/)[1];
+        const ugolDoc = await db.users.findOne({ username });
+        if (ugolDoc && !ugolDoc.ugol) {
+          const ugolDate = new Date(Date.now() + (ugolHour * 3600000) + (ugolMinute * 60000));
+          db.users.update({ username }, { $set: { ugol: true } });
+          // eslint-disable-next-line no-unused-vars
+          const job = scheduler.scheduleJob(ugolDate, async () => {
+            await bot.unbanChatMember(chatId, ugolDoc._id);
+            await bot.sendMessage(chatId, `@${username} вышел из угла`);
+            await db.users.update(
+              { username },
+              { $set: { ugol: false } },
+            );
+          });
+          await bot.sendMessage(chatId, `@${username} был поставлен в угол на ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
+        } else {
+          await bot.sendMessage(chatId, 'Пользователь уже в углу');
+        }
+      } else if (msg.reply_to_message) {
+        const ugolDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
+        if (ugolDoc && !ugolDoc.ban) {
+          const ugolDate = new Date(Date.now() + (ugolHour * 3600000) + (ugolMinute * 60000));
+          db.users.update(
+            { _id: msg.reply_to_message.from.id },
+            { $set: { ugol: true } },
+          );
+          // eslint-disable-next-line no-unused-vars
+          const job = scheduler.scheduleJob(ugolDate, async () => {
+            await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} вышел из угла`);
+            await db.users.update({ _id: msg.reply_to_message.from.id }, {
+              $set: { ugol: false },
+            });
+          });
+          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был поставлен в угол на ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
+        } else {
+          await bot.sendMessage(chatId, 'Пользователь уже забанен');
+        }
+      }
+    }
+  }
+});
+
 bot.onText(/\/setux/, async (msg) => {
   const chatId = msg.chat.id;
   if (msg.from.username === 'Setux' || msg.from.username === 'mnb3000') {
@@ -569,6 +635,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
 });
 
 bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
   const userId = msg.from.id;
   const senderDoc = await db.users.findOne({ _id: userId });
   if (!senderDoc) {
@@ -579,8 +646,12 @@ bot.on('message', async (msg) => {
       ban: false,
       banDate: false,
       banChat: false,
+      ugol: false,
       admin: false,
     });
+  } else if (senderDoc.ugol) {
+    await bot.deleteMessage(chatId, msg.message_id);
+    await bot.sendMessage(chatId, `*@${msg.from.username} пробурчал из угла:* ${msg.text}`, { parse_mode: 'Markdown' });
   }
 });
 
