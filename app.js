@@ -363,7 +363,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
         }
       } else if (msg.reply_to_message) {
         const ugolDoc = await db.users.findOne({ _id: msg.reply_to_message.from.id });
-        if (ugolDoc && !ugolDoc.ban) {
+        if (ugolDoc && !ugolDoc.ugol) {
           const ugolDate = new Date(Date.now() + (ugolHour * 3600000) + (ugolMinute * 60000));
           db.users.update(
             { _id: msg.reply_to_message.from.id },
@@ -378,7 +378,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
           });
           await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был поставлен в угол на ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
         } else {
-          await bot.sendMessage(chatId, 'Пользователь уже забанен');
+          await bot.sendMessage(chatId, 'Пользователь уже в углу');
         }
       }
     }
