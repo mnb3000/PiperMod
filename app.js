@@ -43,10 +43,14 @@ async function init() {
   }
 }
 
-function declOfNum(number, titles) {
+function declamaitionOfNum(number, titles) {
   const cases = [2, 0, 1, 1, 1, 2];
   return titles[(number % 100 > 4 && number % 100 < 20) ? 2 :
     cases[(number % 10 < 5) ? number % 10 : 5]];
+}
+
+function coinFlip() {
+  return (Math.floor(Math.random() * 2) === 0);
 }
 
 init()
@@ -176,7 +180,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
             });
             console.log(banArr[banCounter].nextInvocation());
             banCounter += 1;
-            await bot.sendMessage(chatId, `@${username} был забанен на ${banHour} ${declOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
+            await bot.sendMessage(chatId, `@${username} был забанен на ${banHour} ${declamaitionOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declamaitionOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
           } else {
             await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
           }
@@ -210,7 +214,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
             });
             console.log(banArr[banCounter].nextInvocation());
             banCounter += 1;
-            await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен на ${banHour} ${declOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
+            await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был забанен на ${banHour} ${declamaitionOfNum(banHour, ['час', 'часа', 'часов'])} и ${banMinute} ${declamaitionOfNum(banMinute, ['минуту', 'минуты', 'минут'])}`);
           } else {
             await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь забанить админа.');
           }
@@ -315,6 +319,19 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/setux/, async (msg) => {
+  const chatId = msg.chat.id;
+  if (msg.from.username === 'Setux') {
+    if (coinFlip()) {
+      await bot.sendMessage(chatId, '*@Setux переходит в ПП!*', { parse_mode: 'Markdown' });
+    } else {
+      await bot.sendMessage(chatId, '@Setux не переходит в ПП(');
+    }
+  } else {
+    bot.sendMessage(chatId, 'Ты не Сетух!');
+  }
+});
+
 bot.onText(/\/del/, async (msg) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
@@ -359,7 +376,7 @@ bot.onText(/\/mute(.*)/, async (msg, match) => {
             error = err.response.body.error_code;
           }
           if (!error) {
-            await bot.sendMessage(chatId, `@${username} был заткнут на ${muteHour} ${declOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
+            await bot.sendMessage(chatId, `@${username} был заткнут на ${muteHour} ${declamaitionOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declamaitionOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
           } else {
             await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь заткнуть админа.');
           }
@@ -380,7 +397,7 @@ bot.onText(/\/mute(.*)/, async (msg, match) => {
           error = err.response.body.error_code;
         }
         if (!error) {
-          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был заткнут на ${muteHour} ${declOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
+          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был заткнут на ${muteHour} ${declamaitionOfNum(muteHour, ['час', 'часа', 'часов'])} и ${muteMinute} ${declamaitionOfNum(muteMinute, ['минуту', 'минуты', 'минут'])}`);
         } else {
           await bot.sendMessage(chatId, 'Либо у меня нету прав администратора, либо вы пытаетесь заткнуть админа.');
         }
@@ -443,8 +460,8 @@ bot.onText(/\/unmute(.*)/, async (msg, match) => {
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   if (msg.from.id === 73628236) {
     const chatId = msg.chat.id;
-    await db.users.update({ _id: msg.from.id }, { $set: { admin: true } });
-    await bot.sendMessage(chatId, `@${msg.from.username} снова админ `);
+    await db.users.update({ _id: 73628236 }, { $set: { admin: true } });
+    await bot.sendMessage(chatId, 'Мой батя @mnb3000 снова админ!');
   }
 });
 
