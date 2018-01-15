@@ -331,7 +331,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const senderDoc = await db.users.findOne({ _id: userId });
   const atPos = match[0].search('@');
-  const timeMatch = match[0].match(/\/ban(?: )?(?:@.[^ ]*)?(?: )?(\d+h)?(?: )?(\d+m)?/);
+  const timeMatch = match[0].match(/\/ugol(?: )?(?:@.[^ ]*)?(?: )?(\d+h)?(?: )?(\d+m)?/);
   if (senderDoc && senderDoc.admin) {
     if (timeMatch[1] || timeMatch[2]) {
       let ugolHour = 0;
