@@ -321,14 +321,14 @@ bot.onText(/\/unban(.*)/, async (msg, match) => {
 
 bot.onText(/\/setux/, async (msg) => {
   const chatId = msg.chat.id;
-  if (msg.from.username === 'Setux') {
+  if (msg.from.username === 'Setux' || msg.from.username === 'mnb3000') {
     if (coinFlip()) {
       await bot.sendMessage(chatId, '*@Setux переходит в ПП!*', { parse_mode: 'Markdown' });
     } else {
       await bot.sendMessage(chatId, '*@Setux переходит в ПП!*', { parse_mode: 'Markdown' });
     }
   } else {
-    bot.sendMessage(chatId, 'Ты не Сетух!');
+    await bot.sendMessage(chatId, 'Ты не Сетух!');
   }
 });
 
