@@ -651,7 +651,7 @@ bot.on('message', async (msg) => {
     });
   } else if (senderDoc.ugol) {
     await bot.deleteMessage(chatId, msg.message_id);
-    await bot.sendMessage(chatId, `*@${msg.from.username} пробурчал из угла:* ${msg.text}`, { parse_mode: 'Markdown', reply_to_message_id: msg.message_id });
+    await bot.sendMessage(chatId, `*@${msg.from.username} пробурчал из угла:* ${msg.text}`, { parse_mode: 'Markdown', reply_to_message_id: msg.reply_to_message.message_id });
   }
 });
 
