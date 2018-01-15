@@ -325,7 +325,7 @@ bot.onText(/\/setux/, async (msg) => {
     if (coinFlip()) {
       await bot.sendMessage(chatId, '*@Setux переходит в ПП!*', { parse_mode: 'Markdown' });
     } else {
-      await bot.sendMessage(chatId, '*@Setux переходит в ПП!*', { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, '@Setux не переходит в ПП(');
     }
   } else {
     await bot.sendMessage(chatId, 'Ты не Сетух!');
