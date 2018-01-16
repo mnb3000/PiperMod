@@ -357,7 +357,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
               { $set: { ugol: false } },
             );
           });
-          await bot.sendMessage(chatId, `@${username} был поставлен в угол на ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
+          await bot.sendMessage(chatId, `@${username} , в угол! Подумай над своим поведением ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
         } else {
           await bot.sendMessage(chatId, 'Пользователь уже в углу');
         }
@@ -376,7 +376,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
               $set: { ugol: false },
             });
           });
-          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} был поставлен в угол на ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
+          await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username}, в угол! Подумай над своим поведением ${ugolHour} ${declamaitionOfNum(ugolHour, ['час', 'часа', 'часов'])} и ${ugolMinute} ${declamaitionOfNum(ugolMinute, ['минуту', 'минуты', 'минут'])}`);
         } else {
           await bot.sendMessage(chatId, 'Пользователь уже в углу');
         }
@@ -523,6 +523,19 @@ bot.onText(/\/unmute(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/pin(.*)/, async (msg, match) => {
+  const senderDoc = await db.users.findOne({ _id: msg.from.id });
+  if (senderDoc && senderDoc.admin && msg.reply_to_message) {
+    const chatId = msg.chat.id;
+    const replyMessageId = msg.reply_to_message.message_id;
+    if (match[1] === ' silent') {
+      await bot.pinChatMessage(chatId, replyMessageId, { disable_notification: true });
+    } else {
+      await bot.pinChatMessage(chatId, replyMessageId);
+    }
+  }
+});
+
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   if (msg.from.id === 73628236) {
     const chatId = msg.chat.id;
@@ -531,10 +544,10 @@ bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   }
 });
 
-bot.onText(/#идеядляПП ([^]*)/i, async (msg, match) => {
+bot.onText(/#идеядляПП/i, async (msg) => {
   const chatId = msg.chat.id;
   await bot.sendMessage(-1001165254294, `Идея для бота от @${msg.from.username}:
-${match[1]}`);
+${msg.text}`);
   await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
 });
 
