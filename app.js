@@ -533,6 +533,7 @@ bot.onText(/\/pin(.*)/, async (msg, match) => {
     } else {
       await bot.pinChatMessage(chatId, replyMessageId);
     }
+    await bot.deleteMessage(chatId, msg.message_id);
   }
 });
 
