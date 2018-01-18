@@ -653,7 +653,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
 bot.onText(/\/restart/, async (msg) => {
   if (msg.from.id === 73628236) {
     const chatId = msg.chat.id;
-    await bot.sendMessage(chatId, 'Так точно, перезагружаюсь!');
+    bot.sendMessage(chatId, 'Так точно, перезагружаюсь!');
     process.exit();
   }
 });
