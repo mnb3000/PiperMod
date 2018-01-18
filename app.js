@@ -2,6 +2,7 @@
 const Datastore = require('nedb-promise').datastore;
 const TelegramBot = require('tgfancy');
 const scheduler = require('node-schedule');
+const pm2 = require('pm2');
 
 const db = {
   users: Datastore({
@@ -652,9 +653,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
 
 bot.onText(/\/restart/, async (msg) => {
   if (msg.from.id === 73628236) {
-    const chatId = msg.chat.id;
-    bot.sendMessage(chatId, 'Так точно, перезагружаюсь!');
-    process.exit();
+    pm2.restart('app', () => {});
   }
 });
 
