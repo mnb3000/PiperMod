@@ -653,7 +653,9 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
 
 bot.onText(/\/restart/, async (msg) => {
   if (msg.from.id === 73628236) {
-    pm2.restart('app', () => {});
+    pm2.restart('app', async () => {
+      await bot.sendMessage(testChatId, 'Перегружаюсь');
+    });
   }
 });
 
