@@ -17,6 +17,7 @@ const db = {
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 const banArr = [];
+const testChatId = -1001165254294;
 let banCounter = 0;
 
 async function init() {
@@ -48,6 +49,7 @@ async function init() {
     });
     banCounter += 1;
   }
+  await bot.sendMessage(testChatId, 'Бот запущен!');
 }
 
 function declamaitionOfNum(number, titles) {
@@ -155,7 +157,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
   let error = 0;
   if (senderDoc && senderDoc.admin) {
     const atPos = match[0].search('@');
-    const timeMatch = match[0].match(/\/ban(?: )?(?:@.[^ ]*)?(?: )?(\d+h)?(?: )?(\d+m)?/);
+    const timeMatch = match[0].match(/\/ban ?(?:@.[^ ]*)? ?(\d+h)? ?(\d+m)?/);
     if (timeMatch[1] || timeMatch[2]) {
       let banHour = 0;
       let banMinute = 0;
@@ -166,7 +168,7 @@ bot.onText(/\/ban(.*)/, async (msg, match) => {
         banMinute = parseInt(timeMatch[2].replace('m', ''), 10);
       }
       if (atPos !== -1) {
-        const username = match[0].match(/\/ban(?: )?(?:@)(.[^ ]*)/)[1];
+        const username = match[0].match(/\/ban ?(?:@)(.[^ ]*)/)[1];
         const banDoc = await db.users.findOne({ username });
         if (banDoc && !banDoc.ban) {
           try {
@@ -547,7 +549,7 @@ bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
 
 bot.onText(/#идеядляПП/i, async (msg) => {
   const chatId = msg.chat.id;
-  await bot.sendMessage(-1001165254294, `Идея для бота от @${msg.from.username}:
+  await bot.sendMessage(testChatId, `Идея для бота от @${msg.from.username}:
 ${msg.text}`);
   await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
 });
@@ -645,6 +647,14 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     const chatId = msg.chat.id;
     const rules = await db.data.findOne({ name: 'startLs' });
     await bot.sendMessage(chatId, rules.text);
+  }
+});
+
+bot.onText(/\/restart/, async (msg) => {
+  if (msg.from.id === 73628236) {
+    const chatId = msg.chat.id;
+    await bot.sendMessage(chatId, 'Так точно, перезагружаюсь!');
+    process.exit();
   }
 });
 
