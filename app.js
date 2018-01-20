@@ -540,6 +540,15 @@ bot.onText(/\/pin(.*)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/unpin/, async (msg) => {
+  const senderDoc = await db.users.findOne({ _id: msg.from.id });
+  if (senderDoc && senderDoc.admin && msg.reply_to_message) {
+    const chatId = msg.chat.id;
+    await bot.unpinChatMessage(chatId);
+    await bot.deleteMessage(chatId, msg.message_id);
+  }
+});
+
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   if (msg.from.id === 73628236) {
     const chatId = msg.chat.id;
