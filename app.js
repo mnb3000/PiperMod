@@ -542,7 +542,7 @@ bot.onText(/\/pin(.*)/, async (msg, match) => {
 
 bot.onText(/\/unpin/, async (msg) => {
   const senderDoc = await db.users.findOne({ _id: msg.from.id });
-  if (senderDoc && senderDoc.admin && msg.reply_to_message) {
+  if (senderDoc && senderDoc.admin) {
     const chatId = msg.chat.id;
     await bot.unpinChatMessage(chatId);
     await bot.deleteMessage(chatId, msg.message_id);
