@@ -674,6 +674,8 @@ bot.on('message', async (msg) => {
     //bot.sendMessage(chatId, `Chat id: ${chatId}, not ${testChatId}`);
     console.log(typeof chatId);
     console.log(chatId);
+    console.log(typeof testChatId);
+    console.log(testChatId);
     //await bot.leaveChat(chatId);
   }
   const userId = msg.from.id;
