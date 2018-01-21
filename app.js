@@ -672,7 +672,7 @@ bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   if (chatId !== ppChatId.toString() || chatId !== testChatId || msg.chat.username !== 'startupwarsreport') {
     //bot.sendMessage(chatId, `Chat id: ${chatId}, not ${testChatId}`);
-    console.log(typeof chatId !== testChatId);
+    console.log(chatId !== testChatId);
     //await bot.leaveChat(chatId);
   }
   const userId = msg.from.id;
