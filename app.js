@@ -670,7 +670,7 @@ bot.onText(/\/restart/, async (msg) => {
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  if (chatId !== ppChatId || chatId !== testChatId || msg.chat.username !== 'startupwarsreport') {
+  if (chatId !== ppChatId.toString() || chatId !== testChatId.toString() || msg.chat.username !== 'startupwarsreport') {
     bot.sendMessage(chatId, `Chat id: ${chatId}, not ${testChatId}`);
     //await bot.leaveChat(chatId);
   }
