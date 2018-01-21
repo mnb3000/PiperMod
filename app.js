@@ -19,7 +19,7 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 const banArr = [];
 const testChatId = -1001165254294;
-const ppChatId = -1062124708;
+const ppChatId = -1001062124708;
 let banCounter = 0;
 
 async function init() {
@@ -670,7 +670,9 @@ bot.onText(/\/restart/, async (msg) => {
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  console.log(chatId);
+  if (chatId !== ppChatId || chatId !== testChatId || msg.chat.username !== 'startupwarsreport') {
+    await bot.leaveChat(chatId);
+  }
   const userId = msg.from.id;
   const senderDoc = await db.users.findOne({ _id: userId });
   if (!senderDoc) {
