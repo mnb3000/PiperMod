@@ -26,6 +26,12 @@ const banArr = [];
 const testChatId = -1001165254294;
 const ppChatId = -1001062124708;
 let banCounter = 0;
+const bettingStartRule = new scheduler.RecurrenceRule();
+const bettingEndRule = new scheduler.RecurrenceRule();
+bettingStartRule.hour = [9, 12, 15, 18, 21];
+bettingStartRule.minute = 50;
+bettingEndRule.hour = [9, 12, 15, 18, 21];
+bettingEndRule.minute = 59;
 
 async function init() {
   const timedBanned = await db.users.find({
@@ -73,6 +79,8 @@ init()
   .catch((err) => {
     console.log(err);
   });
+
+// scheduler.scheduleJob(bettingStartRule)
 
 router.post('/report', koaBody(), async (ctx) => {
   console.log(ctx.request.body);
@@ -377,8 +385,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
           if (ugolDoc && !ugolDoc.ugol) {
             const ugolDate = new Date(Date.now() + (ugolHour * 3600000) + (ugolMinute * 60000));
             db.users.update({ username }, { $set: { ugol: true } });
-            // eslint-disable-next-line no-unused-vars
-            const job = scheduler.scheduleJob(ugolDate, async () => {
+            scheduler.scheduleJob(ugolDate, async () => {
               await bot.unbanChatMember(chatId, ugolDoc._id);
               await bot.sendMessage(chatId, `@${username} вышел из угла`);
               await db.users.update(
@@ -398,8 +405,7 @@ bot.onText(/\/ugol(.*)/, async (msg, match) => {
               { _id: msg.reply_to_message.from.id },
               { $set: { ugol: true } },
             );
-            // eslint-disable-next-line no-unused-vars
-            const job = scheduler.scheduleJob(ugolDate, async () => {
+            scheduler.scheduleJob(ugolDate, async () => {
               await bot.sendMessage(chatId, `@${msg.reply_to_message.from.username} вышел из угла`);
               await db.users.update({ _id: msg.reply_to_message.from.id }, {
                 $set: { ugol: false },
