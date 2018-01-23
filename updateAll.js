@@ -15,7 +15,7 @@ const db = {
 async function init() {
   const users = await db.users.find({});
   users.forEach(async (user) => {
-    await db.update({ _id: user._id }, {
+    await db.users.update({ _id: user._id }, {
       $set: {
         bet: false,
         betPoints: 0,
