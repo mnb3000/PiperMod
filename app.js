@@ -32,7 +32,7 @@ bettingStartRule.minute = 50;
 bettingEndRule.hour = [9, 12, 15, 18, 21];
 bettingEndRule.minute = 58;
 let banCounter = 0;
-let isBetting = true;
+let isBetting = false;
 
 async function init() {
   const timedBanned = await db.users.find({
@@ -83,16 +83,16 @@ init()
 
 scheduler.scheduleJob(bettingStartRule, async () => {
   isBetting = true;
-  const msg = await bot.sendMessage(testChatId, `10 минут до битвы, а это значит что пришло время *ДЕЛАТЬ СТАВКИ!*
+  const msg = await bot.sendMessage(ppChatId, `10 минут до битвы, а это значит что пришло время *ДЕЛАТЬ СТАВКИ!*
 Делайте свои ставки в формате \`/bet *кол-во очков*\``, { parse_mode: 'markdown' });
-  await bot.pinChatMessage(testChatId, msg.message_id);
+  await bot.pinChatMessage(ppChatId, msg.message_id);
 });
 
 scheduler.scheduleJob(bettingEndRule, async () => {
   isBetting = false;
-  await bot.sendMessage(testChatId, `Время для ставок *ОКОНЧЕНО!*
+  await bot.sendMessage(ppChatId, `Время для ставок *ОКОНЧЕНО!*
 Ждем результаты битвы!`, { parse_mode: 'markdown' });
-  await bot.unpinChatMessage(testChatId);
+  await bot.unpinChatMessage(ppChatId);
 });
 
 router.post('/report', koaBody(), async (ctx) => {
@@ -136,8 +136,8 @@ router.post('/report', koaBody(), async (ctx) => {
       betResult: false,
     },
   });
-  const msg = await bot.sendMessage(testChatId, str, { parse_mode: 'markdown' });
-  // await bot.pinChatMessage(testChatId, msg.message_id);
+  const msg = await bot.sendMessage(ppChatId, str, { parse_mode: 'markdown' });
+  await bot.pinChatMessage(ppChatId, msg.message_id);
   ctx.body = 'Ok';
 });
 
