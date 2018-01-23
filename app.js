@@ -106,15 +106,19 @@ router.post('/report', koaBody(), async (ctx) => {
   const top = await db.users.cfind({ betResult: { $ne: false } }).sort({ betResult: -1 })
     .limit(5).exec();
   for (let i = 0; i < 3; i += 1) {
-    await db.users.update({ _id: top[i]._id }, {
-      $set: {
-        betPoints: (top[i].betPoints + 3) - i,
-      },
-    });
-    str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 Очка Предсказателя*\n`;
+    if (top[i]) {
+      await db.users.update({ _id: top[i]._id }, {
+        $set: {
+          betPoints: (top[i].betPoints + 3) - i,
+        },
+      });
+      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 Очка Предсказателя*\n`;
+    }
   }
   for (let i = 3; i < 5; i += 1) {
-    str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}\n`;
+    if (top[i]) {
+      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}\n`;
+    }
   }
   console.log(str);
   ctx.body = 'Ok';
