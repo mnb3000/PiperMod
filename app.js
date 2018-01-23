@@ -96,7 +96,8 @@ scheduler.scheduleJob(bettingEndRule, async () => {
 });
 
 router.post('/report', koaBody(), async (ctx) => {
-  console.log(ctx.request.body);
+  const pts = parseInt(ctx.request.body.pts, 10);
+
   ctx.body = 'Ok';
 });
 
@@ -609,7 +610,9 @@ bot.onText(/\/unpin/, async (msg) => {
 
 bot.onText(/\/bet (\d+)/, async (msg, match) => {
   if (isBetting) {
-    await bot.sendMessage(msg.chat.id, `Ставка на ${match[1]} ${declamaitionOfNum(parseInt(match[1], 10), ['очко', 'очка', 'очков'])} принята`);
+    const pts = parseInt(match[1], 10);
+    db.users.update({ _id: msg.from.id }, { $set: { bet: pts } });
+    await bot.sendMessage(msg.chat.id, `Ставка на ${pts} ${declamaitionOfNum(pts, ['очко', 'очка', 'очков'])} принята`);
   } else {
     await bot.sendMessage(msg.chat.id, 'Сейчас не время для ставок!');
   }
@@ -766,6 +769,9 @@ bot.on('message', async (msg) => {
       banDate: false,
       banChat: false,
       ugol: false,
+      bet: false,
+      betPoints: 0,
+      betResult: false,
       admin: false,
     });
   } else if (senderDoc.ugol) {
