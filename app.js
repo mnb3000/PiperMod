@@ -112,7 +112,7 @@ router.post('/report', koaBody(), async (ctx) => {
           betPoints: (top[i].betPoints + 3) - i,
         },
       });
-      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 Очка Предсказателя*\n`;
+      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 ${declamaitionOfNum(3 - i, ['Очко', 'Очка', 'Очков'])} Предсказателя*\n`;
     }
   }
   for (let i = 3; i < 5; i += 1) {
@@ -120,7 +120,24 @@ router.post('/report', koaBody(), async (ctx) => {
       str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}\n`;
     }
   }
-  console.log(str);
+  await db.users.update({
+    $or: [{
+      bet: {
+        $ne: false,
+      },
+    }, {
+      betResult: {
+        $ne: false,
+      },
+    }],
+  }, {
+    $set: {
+      bet: false,
+      betResult: false,
+    },
+  });
+  const msg = await bot.sendMessage(testChatId, str, { parse_mode: 'markdown' });
+  await bot.pinChatMessage(testChatId, msg.message_id);
   ctx.body = 'Ok';
 });
 
