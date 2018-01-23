@@ -27,12 +27,12 @@ const testChatId = -1001165254294;
 const ppChatId = -1001062124708;
 const bettingStartRule = new scheduler.RecurrenceRule();
 const bettingEndRule = new scheduler.RecurrenceRule();
-bettingStartRule.hour = [9, 12, 15, 18, 21];
-bettingStartRule.minute = 50;
+bettingStartRule.hour = [9, 12, 15, 18, 21, 2];
+bettingStartRule.minute = 0;
 bettingEndRule.hour = [9, 12, 15, 18, 21];
-bettingEndRule.minute = 59;
+bettingEndRule.minute = 58;
 let banCounter = 0;
-let isBetting = true;
+let isBetting = false;
 
 async function init() {
   const timedBanned = await db.users.find({
@@ -112,12 +112,12 @@ router.post('/report', koaBody(), async (ctx) => {
           betPoints: (top[i].betPoints + 3) - i,
         },
       });
-      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 ${declamaitionOfNum(3 - i, ['Очко', 'Очка', 'Очков'])} Предсказателя*\n`;
+      str += `*#${i + 1}* @${top[i].username} *Разность:* ${top[i].betResult}, *+${3 - i} 🔮 ${declamaitionOfNum(3 - i, ['Очко', 'Очка', 'Очков'])} Предсказателя*\n`;
     }
   }
   for (let i = 3; i < 5; i += 1) {
     if (top[i]) {
-      str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}\n`;
+      str += `*#${i + 1}* @${top[i].username} *Разность:* ${top[i].betResult}\n`;
     }
   }
   await db.users.update({
