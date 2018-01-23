@@ -27,12 +27,12 @@ const testChatId = -1001165254294;
 const ppChatId = -1001062124708;
 const bettingStartRule = new scheduler.RecurrenceRule();
 const bettingEndRule = new scheduler.RecurrenceRule();
-bettingStartRule.hour = [9, 12, 15, 18, 21, 1];
-bettingStartRule.minute = 1;
+bettingStartRule.hour = [9, 12, 15, 18, 21];
+bettingStartRule.minute = 50;
 bettingEndRule.hour = [9, 12, 15, 18, 21];
 bettingEndRule.minute = 58;
 let banCounter = 0;
-let isBetting = false;
+let isBetting = true;
 
 async function init() {
   const timedBanned = await db.users.find({
@@ -103,7 +103,7 @@ router.post('/report', koaBody(), async (ctx) => {
   betters.forEach(async (better) => {
     db.users.update({ _id: better._id }, { $set: { betResult: Math.abs(pts - better.bet) } });
   });
-  const top = await db.users.cfind({ betResult: { $ne: false } }).sort({ betResult: -1 })
+  const top = await db.users.cfind({ betResult: { $ne: false } }).sort({ betResult: 1 })
     .limit(5).exec();
   for (let i = 0; i < 3; i += 1) {
     if (top[i]) {
