@@ -3,6 +3,9 @@ const Datastore = require('nedb-promise').datastore;
 const TelegramBot = require('tgfancy');
 const scheduler = require('node-schedule');
 const pm2 = require('pm2');
+const Koa = require('koa');
+const Router = require('koa-router');
+const koaBody = require('koa-body');
 
 const db = {
   users: Datastore({
@@ -17,6 +20,8 @@ const db = {
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
+const app = new Koa();
+const router = new Router();
 const banArr = [];
 const testChatId = -1001165254294;
 const ppChatId = -1001062124708;
@@ -68,6 +73,11 @@ init()
   .catch((err) => {
     console.log(err);
   });
+
+router.post('/report', koaBody(), async (ctx) => {
+  console.log(ctx.request.body);
+  ctx.body = 'Ok';
+});
 
 bot.onText(/\/kick(.*)/, async (msg, match) => {
   if (msg.chat.type !== 'channel') {
@@ -755,3 +765,7 @@ bot.on('new_chat_members', async (msg) => {
     });
   }
 });
+
+app.use(router.routes());
+app.use(router.allowedMethods());
+app.listen(3001);
