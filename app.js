@@ -97,7 +97,24 @@ scheduler.scheduleJob(bettingEndRule, async () => {
 
 router.post('/report', koaBody(), async (ctx) => {
   const pts = parseInt(ctx.request.body.pts, 10);
-
+  const betters = await db.users.find({ bet: { $ne: false } });
+  let str = '*Топ предсказателей битвы:*\n';
+  betters.forEach(async (better) => {
+    db.users.update({ _id: better._id }, { $set: { betResult: Math.abs(pts - better.bet) } });
+  });
+  const top = await db.users.cfind({}).sort({ betResult: -1 }).limit(5).exec();
+  for (let i = 0; i < 3; i += 1) {
+    await db.users.update({ _id: top[i]._id }, {
+      $set: {
+        betPoints: (top[i].betPoints + 3) - i,
+      },
+    });
+    str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}, *+${3 - i} 🔮 Очка Предсказателя*\n`;
+  }
+  for (let i = 3; i < 5; i += 1) {
+    str += `*#${i + 1}* @${top[i].username} Разность: ${top[i].betResult}\n`;
+  }
+  console.log(str);
   ctx.body = 'Ok';
 });
 
