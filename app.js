@@ -137,7 +137,7 @@ router.post('/report', koaBody(), async (ctx) => {
     },
   });
   const msg = await bot.sendMessage(testChatId, str, { parse_mode: 'markdown' });
-  await bot.pinChatMessage(testChatId, msg.message_id);
+  // await bot.pinChatMessage(testChatId, msg.message_id);
   ctx.body = 'Ok';
 });
 
