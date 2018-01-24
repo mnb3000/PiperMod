@@ -674,7 +674,7 @@ bot.onText(/\/mybets/, async (msg) => {
   const chatId = msg.chat.id;
   const user = await db.users.findOne({ _id: msg.from.id });
   await bot.deleteMessage(chatId, msg.message_id);
-  await bot.sendMessage(chatId, `<b>${msg.from.first_name} ${msg.from.last_name}</b>, у тебя ${user.betPoints} ${declamaitionOfNum(user.betPoints, ['Очко', 'Очка', 'Очков'])} Предсказаний🔮`, { parse_mode: 'html' });
+  await bot.sendMessage(chatId, `<b>${msg.from.first_name}${msg.from.last_name ? ` ${msg.from.last_name}` : ''}</b>, у тебя ${user.betPoints} ${declamaitionOfNum(user.betPoints, ['Очко', 'Очка', 'Очков'])} Предсказаний🔮`, { parse_mode: 'html' });
 });
 
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
