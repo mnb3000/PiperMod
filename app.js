@@ -833,6 +833,8 @@ bot.on('message', async (msg) => {
     } else {
       await bot.sendMessage(chatId, `*@${msg.from.username} пробурчал из угла:* \`${msg.text}\``, { parse_mode: 'Markdown' });
     }
+  } else if (senderDoc.username !== msg.from.username) {
+    await db.users.update({ _id: msg.from.id }, { $set: { username: msg.from.username } });
   }
 });
 
