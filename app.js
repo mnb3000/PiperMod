@@ -667,7 +667,7 @@ bot.onText(/\/topbet/, async (msg) => {
     str += `<b>#${i + 1}</b> @${user.username}: ${user.betPoints} 🔮
 `;
   });
-  await bot.sendMessage(chatId, str);
+  await bot.sendMessage(chatId, str, { parse_mode: 'html' });
 });
 
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
