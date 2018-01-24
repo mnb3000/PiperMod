@@ -664,7 +664,7 @@ bot.onText(/\/topbet/, async (msg) => {
     .limit(10).exec();
   let str = '<b>Топ предсказателей:</b>\n\n';
   topArray.forEach((user, i) => {
-    str += `<b>#${i + 1}</b>  <code>@${user.username}</code>: ${user.betPoints}🔮
+    str += `<b>#${i + 1}</b>  <code>@${user.username}</code>:  ${user.betPoints}🔮
 `;
   });
   await bot.sendMessage(chatId, str, { parse_mode: 'html' });
