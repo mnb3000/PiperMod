@@ -99,7 +99,7 @@ router.post('/report', koaBody(), async (ctx) => {
   const pts = parseInt(ctx.request.body.pts, 10);
   console.log(pts);
   const betters = await db.users.find({ bet: { $ne: false } });
-  let str = '*Топ предсказателей битвы:*\n';
+  let str = '<b>Топ предсказателей битвы:</b>\n';
   betters.forEach(async (better) => {
     db.users.update({ _id: better._id }, { $set: { betResult: Math.abs(pts - better.bet) } });
   });
@@ -112,12 +112,12 @@ router.post('/report', koaBody(), async (ctx) => {
           betPoints: (top[i].betPoints + 3) - i,
         },
       });
-      str += `*#${i + 1}* @${top[i].username} *Разность:* ${top[i].betResult}, *+${3 - i} 🔮 ${declamaitionOfNum(3 - i, ['Очко', 'Очка', 'Очков'])} Предсказателя*\n`;
+      str += `<b>#${i + 1}</b> @${top[i].username} <b>Разность:</b> ${top[i].betResult}, <b>+${3 - i} 🔮 ${declamaitionOfNum(3 - i, ['Очко', 'Очка', 'Очков'])} Предсказателя</b>\n`;
     }
   }
   for (let i = 3; i < 5; i += 1) {
     if (top[i]) {
-      str += `*#${i + 1}* @${top[i].username} *Разность:* ${top[i].betResult}\n`;
+      str += `<b>#${i + 1}</b> @${top[i].username} <b>Разность:</b> ${top[i].betResult}\n`;
     }
   }
   await db.users.update({
@@ -136,7 +136,7 @@ router.post('/report', koaBody(), async (ctx) => {
       betResult: false,
     },
   });
-  const msg = await bot.sendMessage(ppChatId, str, { parse_mode: 'markdown' });
+  const msg = await bot.sendMessage(ppChatId, str, { parse_mode: 'html' });
   await bot.pinChatMessage(ppChatId, msg.message_id);
   ctx.body = 'Ok';
 });
