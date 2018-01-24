@@ -662,12 +662,19 @@ bot.onText(/\/topbet/, async (msg) => {
   const chatId = msg.chat.id;
   const topArray = await db.users.cfind({ betPoints: { $ne: 0 } }).sort({ betPoints: -1 })
     .limit(10).exec();
-  let str = '<b>Топ предсказателей:</b>\n\n';
+  let str = '<b>Топ предсказателей:</b>\n';
   topArray.forEach((user, i) => {
     str += `<b>#${i + 1}</b>  <code>@${user.username}</code>:  ${user.betPoints}🔮
 `;
   });
   await bot.sendMessage(chatId, str, { parse_mode: 'html' });
+});
+
+bot.onText(/\/mybets/, async (msg) => {
+  const chatId = msg.chat.id;
+  const user = await db.users.findOne({ _id: msg.from.id });
+  await bot.deleteMessage(chatId, msg.message_id);
+  await bot.sendMessage(chatId, `<b>${msg.from.first_name} ${msg.from.last_name}</b>, у тебя ${user.betPoints} ${declamaitionOfNum(user.betPoints, ['Очко', 'Очка', 'Очков'])} Предсказаний 🔮`);
 });
 
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
