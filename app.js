@@ -658,6 +658,18 @@ bot.onText(/\/bet (\d+)/, async (msg, match) => {
   }
 });
 
+bot.onText(/\/topbet/, async (msg) => {
+  const chatId = msg.chat.id;
+  const topArray = await db.users.cfind({ betPoints: { $ne: 0 } }).sort({ betPoints: -1 })
+    .limit(10).exec();
+  let str = '<b>Топ предсказателей:</b>\n\n';
+  topArray.forEach((user, i) => {
+    str += `<b>#${i + 1}</b> @${user.username}: ${user.betPoints} 🔮
+`;
+  });
+  await bot.sendMessage(chatId, str);
+});
+
 bot.onText(/\/makeMnbAdminAgain/, async (msg) => {
   if (msg.chat.type !== 'channel') {
     if (msg.from.id === 73628236) {
