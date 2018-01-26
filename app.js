@@ -120,17 +120,7 @@ router.post('/report', koaBody(), async (ctx) => {
       str += `<b>#${i + 1}</b> @${top[i].username} <b>Разность:</b> ${top[i].betResult}\n`;
     }
   }
-  await db.users.update({
-    $or: [{
-      bet: {
-        $ne: false,
-      },
-    }, {
-      betResult: {
-        $ne: false,
-      },
-    }],
-  }, {
+  await db.users.update({}, {
     $set: {
       bet: false,
       betResult: false,
@@ -139,6 +129,21 @@ router.post('/report', koaBody(), async (ctx) => {
   const msg = await bot.sendMessage(ppChatId, str, { parse_mode: 'html' });
   await bot.pinChatMessage(ppChatId, msg.message_id);
   ctx.body = 'Ok';
+});
+
+bot.onText(/\/clearBets/, async (msg) => {
+  const userId = msg.from.id;
+  const chatId = msg.chat.id;
+  const senderDoc = await db.users.findOne({ _id: userId });
+  if (senderDoc && senderDoc.admin) {
+    await db.users.update({}, {
+      $set: {
+        bet: false,
+        betResult: false,
+      },
+    });
+    await bot.sendMessage(chatId, 'Ставки очищены!');
+  }
 });
 
 bot.onText(/\/kick(.*)/, async (msg, match) => {
