@@ -33,7 +33,7 @@ bettingStartRule.minute = 50;
 bettingEndRule.hour = [9, 12, 15, 18, 21];
 bettingEndRule.minute = 58;
 let banCounter = 0;
-let isBetting = false;
+let isBetting = true;
 
 async function init() {
   const timedBanned = await db.users.find({
