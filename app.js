@@ -139,8 +139,8 @@ bot.onText(/\/clearBets/, async (msg) => {
   if (senderDoc && senderDoc.admin) {
     await db.users.update({}, {
       $set: {
-        bet: false,
-        betResult: false,
+        bet: -1435341345,
+        betResult: -124523453542456,
       },
     });
     await bot.sendMessage(chatId, 'Ставки очищены!');
