@@ -6,6 +6,7 @@ const pm2 = require('pm2');
 const Koa = require('koa');
 const Router = require('koa-router');
 const koaBody = require('koa-body');
+const IFTTTMaker = require('iftttmaker')('h9cjQR4SL3SEMaWad5zyETq3oAeN9l29iAsw3jDVDZ6');
 
 const db = {
   users: Datastore({
@@ -697,7 +698,8 @@ bot.onText(/#идеядляПП/i, async (msg) => {
   if (msg.chat.type !== 'channel') {
     const chatId = msg.chat.id;
     await bot.sendMessage(testChatId, `Идея для бота от @${msg.from.username}:
-${msg.text}`);
+${msg.text.replace(/#идеядляПП/i, '')}`);
+    await IFTTTMaker.send('idea_post', msg.from.username, msg.text.replace(/#идеядляПП/i, ''));
     await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
   }
 });
