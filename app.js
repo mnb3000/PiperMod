@@ -700,7 +700,7 @@ bot.onText(/#идеядляПП/i, async (msg) => {
     await bot.sendMessage(testChatId, `Идея для бота от @${msg.from.username}:
 ${msg.text.replace(/#идеядляПП/i, '')}`);
     await IFTTTMaker.send('idea_post', msg.from.username, msg.text.replace(/#идеядляПП/i, ''));
-    await bot.sendMessage(chatId, 'Ваша идея отправлена на рассмотрение!');
+    await bot.sendMessage(chatId, 'Ну ладно, я принял, рассмотрю попозже');
   }
 });
 
