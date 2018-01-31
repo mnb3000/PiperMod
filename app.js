@@ -699,7 +699,7 @@ bot.onText(/#идеядляПП/i, async (msg) => {
     const chatId = msg.chat.id;
     await bot.sendMessage(testChatId, `Идея для бота от @${msg.from.username}:
 ${msg.text.replace(/#идеядляПП/i, '')}`);
-    await IFTTTMaker.send('idea_post', msg.from.username, msg.text.replace(/#идеядляПП/i, ''));
+    await IFTTTMaker.send('idea_post', msg.text.replace(/#идеядляПП/i, ''), msg.from.username);
     await bot.sendMessage(chatId, 'Ну ладно, я принял, рассмотрю попозже');
   }
 });
