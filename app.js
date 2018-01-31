@@ -25,8 +25,7 @@ const app = new Koa();
 const router = new Router();
 const banArr = [];
 const testChatId = -1001165254294;
-// const ppChatId = -1001062124708;
-const ppChatId = -1001165254294;
+const ppChatId = -1001062124708;
 const bettingStartRule = new scheduler.RecurrenceRule();
 const bettingEndRule = new scheduler.RecurrenceRule();
 bettingStartRule.hour = [9, 12, 15, 18, 21];
@@ -34,7 +33,7 @@ bettingStartRule.minute = 50;
 bettingEndRule.hour = [9, 12, 15, 18, 21];
 bettingEndRule.minute = 58;
 let banCounter = 0;
-let isBetting = true;
+let isBetting = false;
 
 async function init() {
   const timedBanned = await db.users.find({
@@ -83,19 +82,20 @@ init()
     console.log(err);
   });
 
-scheduler.scheduleJob(bettingStartRule, async () => {
+/* scheduler.scheduleJob(bettingStartRule, async () => {
   isBetting = true;
+// eslint-disable-next-line max-len
   const msg = await bot.sendMessage(ppChatId, `10 минут до битвы, а это значит что пришло время *ДЕЛАТЬ СТАВКИ!*
 Делайте свои ставки в формате \`/bet *кол-во очков*\``, { parse_mode: 'markdown' });
   await bot.pinChatMessage(ppChatId, msg.message_id);
-});
+}); */
 
-scheduler.scheduleJob(bettingEndRule, async () => {
+/* scheduler.scheduleJob(bettingEndRule, async () => {
   isBetting = false;
   await bot.sendMessage(ppChatId, `Время для ставок *ОКОНЧЕНО!*
 Ждем результаты битвы!`, { parse_mode: 'markdown' });
   await bot.unpinChatMessage(ppChatId);
-});
+}); */
 
 router.post('/report', koaBody(), async (ctx) => {
   const pts = parseInt(ctx.request.body.pts, 10);
