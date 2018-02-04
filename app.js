@@ -5,7 +5,7 @@ const scheduler = require('node-schedule');
 const pm2 = require('pm2');
 const Koa = require('koa');
 const Router = require('koa-router');
-const koaBody = require('koa-body');
+// const koaBody = require('koa-body');
 const IFTTTMaker = require('iftttmaker')('h9cjQR4SL3SEMaWad5zyETq3oAeN9l29iAsw3jDVDZ6');
 
 const db = {
@@ -97,7 +97,7 @@ init()
   await bot.unpinChatMessage(ppChatId);
 }); */
 
-router.post('/report', koaBody(), async (ctx) => {
+/* router.post('/report', koaBody(), async (ctx) => {
   const pts = parseInt(ctx.request.body.pts, 10);
   console.log(pts);
   const betters = await db.users.find({ bet: { $ne: false } });
@@ -131,7 +131,7 @@ router.post('/report', koaBody(), async (ctx) => {
   const msg = await bot.sendMessage(ppChatId, str, { parse_mode: 'html' });
   await bot.pinChatMessage(ppChatId, msg.message_id);
   ctx.body = 'Ok';
-});
+}); */
 
 bot.onText(/\/clearBets/, async (msg) => {
   const userId = msg.from.id;
