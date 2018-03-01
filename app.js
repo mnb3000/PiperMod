@@ -7,6 +7,7 @@ const Koa = require('koa');
 const Router = require('koa-router');
 // const koaBody = require('koa-body');
 const IFTTTMaker = require('iftttmaker')('h9cjQR4SL3SEMaWad5zyETq3oAeN9l29iAsw3jDVDZ6');
+const zalgo = require('to-zalgo');
 
 const db = {
   users: Datastore({
@@ -788,7 +789,7 @@ bot.onText(/\/ping/, async (msg) => {
     if (senderDoc && senderDoc.admin) {
       const randomNum = Math.floor(Math.random() * 100) + 1;
       if (randomNum <= 20) {
-        await bot.sendMessage(msg.chat.id, 'FATAL ERROR: PING IS C̺̟̹OR͔̫͖͉R̀U͕̹̱̤P͓͍̦̗̦͝T̻͙̞́E͓̣̮D N͎͇̣̞͖̙̤͍͝a̵̹͞͠N͈̣͝ N̶̶͍̜͈̜̝̜̥͙̺͓̯̜̣͓͜͟͜a͙̺̹̱̗̲̺̺̪͙͈͜͢Ṇ̸̖̪̗͕̪̞̪̫̜̮̹͙̩̙̮̭̲͜ͅ');
+        await bot.sendMessage(msg.chat.id, 'FATAL ERROR: PING IS ' + zalgo('CORRUPTED NaN NaN'));
       } else {
         await bot.sendMessage(msg.chat.id, 'Pong!');
       }
