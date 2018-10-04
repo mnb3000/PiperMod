@@ -21,7 +21,12 @@ const db = {
 };
 
 const token = process.env.BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { 
+  request: {
+    proxy: 'http://telegram:bealive@80.211.221.45:3129',
+  },
+  polling: true 
+});
 const app = new Koa();
 const router = new Router();
 const banArr = [];
