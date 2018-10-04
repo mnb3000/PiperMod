@@ -864,6 +864,7 @@ bot.on('new_chat_members', async (msg) => {
           text: 'Прочти правила!',
           url: 'https://t.me/PiedModerBot?start=rules',
         }]],
+      parse_mode: 'markdown',
       },
     });
   }
